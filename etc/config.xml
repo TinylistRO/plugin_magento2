@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <tinylist_dropshipping>
+                <!-- Off until a merchant deliberately turns it on. -->
+                <active>0</active>
+                <!-- The Adapter virtual type from etc/di.xml, not a PHP class. -->
+                <model>TinylistDropshippingFacade</model>
+                <title>Tinylist Dropshipping</title>
+                <order_status>processing</order_status>
+                <allowspecific>0</allowspecific>
+                <sort_order>700</sort_order>
+                <group>offline</group>
+                <payment_action>order</payment_action>
+                <!-- Runs Model\Payment\Command\Initialize on place(). -->
+                <can_initialize>1</can_initialize>
+                <!-- Admin-only: offered in Create New Order, never on the storefront. -->
+                <can_use_checkout>0</can_use_checkout>
+                <can_use_internal>1</can_use_internal>
+                <can_use_for_multishipping>0</can_use_for_multishipping>
+            </tinylist_dropshipping>
+        </payment>
+
+        <tinylist_dropshipping>
+            <carrier_status>
+                <!--
+                    All registered providers, because a provider only ever gets
+                    contacted for a tracking number it actually matched: a store
+                    without DPD installed has no dpdro_order_shipment rows and no
+                    dpdro_shipping tracks, so the DPD provider simply never
+                    claims anything. Narrow this per store if you want a carrier
+                    explicitly refused rather than silently unmatched.
+                -->
+                <enabled_carriers>sameday,dpd,fancourier</enabled_carriers>
+            </carrier_status>
+        </tinylist_dropshipping>
+    </default>
+</config>

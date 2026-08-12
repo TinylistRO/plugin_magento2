@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+    Pre-declares the "Tinylist Connector" integration so it appears, already
+    scoped to the right resources, under System → Extensions → Integrations.
+    The admin activates it there and Magento issues the access token that
+    Tinylist stores as the merchant's API key.
+
+    This is Magento 2's replacement for the Magento 1 module's install-time
+    creation of a SOAP/XML-RPC role. It is a convenience, not a requirement —
+    an integration created by hand with the same resources works identically.
+-->
+<integrations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Integration:etc/integration/config.xsd">
+    <integration name="Tinylist Connector">
+        <email>support@tinylist.ro</email>
+    </integration>
+</integrations>

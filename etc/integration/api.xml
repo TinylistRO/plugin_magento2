@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+    Resources the "Tinylist Connector" integration requests. Read-focused, and
+    far smaller than the Magento 1 role it replaces:
+
+      * Cart / checkout resources are absent on purpose. Tinylist places orders
+        through the customer-token cart flow (POST /V1/integration/customer/token
+        then /V1/carts/mine/...), which authenticates as the B2B buyer account —
+        the integration token is never used for it.
+      * Write operations are not requested.
+-->
+<integrations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Integration:etc/integration/api.xsd">
+    <integration name="Tinylist Connector">
+        <resources>
+            <!-- Catalog browsing and per-SKU import, including attribute metadata. -->
+            <resource name="Magento_Catalog::catalog"/>
+            <resource name="Magento_Catalog::catalog_inventory"/>
+            <resource name="Magento_Catalog::products"/>
+            <resource name="Magento_Catalog::attributes_attributes"/>
+            <resource name="Magento_Catalog::sets"/>
+
+            <!-- Order status and shipment polling. -->
+            <resource name="Magento_Sales::sales"/>
+            <resource name="Magento_Sales::actions_view"/>
+            <resource name="Magento_Sales::shipment"/>
+            <resource name="Magento_Sales::sales_invoice"/>
+
+            <!-- This module's own endpoints. -->
+            <resource name="Tinylist_Dropshipping::invoice"/>
+            <resource name="Tinylist_Dropshipping::tracking"/>
+        </resources>
+    </integration>
+</integrations>

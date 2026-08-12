@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+    One declaration serves both transports: REST at
+    /rest/V1/tinylist/... and SOAP at /soap/?wsdl&services=tinylistDropshipping...
+    Magento generates the WSDL from the service interfaces' return types, so
+    there is no wsdl.xml / wsi.xml to maintain as there was on Magento 1.
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/tinylist/orders/:orderIncrementId/invoice" method="GET">
+        <service class="Tinylist\Dropshipping\Api\OrderInvoiceInterface" method="get"/>
+        <resources>
+            <resource ref="Tinylist_Dropshipping::invoice"/>
+        </resources>
+    </route>
+
+    <route url="/V1/tinylist/orders/:orderIncrementId/tracking/:trackNumber" method="GET">
+        <service class="Tinylist\Dropshipping\Api\OrderTrackingInterface" method="getStatus"/>
+        <resources>
+            <resource ref="Tinylist_Dropshipping::tracking"/>
+        </resources>
+    </route>
+</routes>

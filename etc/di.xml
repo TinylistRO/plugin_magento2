@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Web API service contracts -->
+    <preference for="Tinylist\Dropshipping\Api\OrderInvoiceInterface"
+                type="Tinylist\Dropshipping\Model\OrderInvoice"/>
+    <preference for="Tinylist\Dropshipping\Api\OrderTrackingInterface"
+                type="Tinylist\Dropshipping\Model\OrderTracking"/>
+    <preference for="Tinylist\Dropshipping\Api\Data\InvoiceResultInterface"
+                type="Tinylist\Dropshipping\Model\Data\InvoiceResult"/>
+    <preference for="Tinylist\Dropshipping\Api\Data\TrackingResultInterface"
+                type="Tinylist\Dropshipping\Model\Data\TrackingResult"/>
+    <preference for="Tinylist\Dropshipping\Api\Data\TrackingEventInterface"
+                type="Tinylist\Dropshipping\Model\Data\TrackingEvent"/>
+
+    <!--
+        Carrier tracking-status providers.
+
+        This replaces the Magento 1 config.xml provider registry. To add a
+        carrier: implement ProviderInterface (usually by extending
+        AbstractProvider), give it a <type> block below, and add it to the pool.
+        It then appears in the Enabled Carriers switch automatically.
+
+        Every module name, carrier code and config path lives here rather than
+        in PHP, so retargeting a provider at a differently-configured carrier
+        module needs no code change.
+    -->
+    <type name="Tinylist\Dropshipping\Model\Carrier\ProviderPool">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="sameday" xsi:type="object">Tinylist\Dropshipping\Model\Carrier\Provider\Sameday</item>
+                <item name="dpd" xsi:type="object">Tinylist\Dropshipping\Model\Carrier\Provider\Dpd</item>
+                <item name="fancourier" xsi:type="object">Tinylist\Dropshipping\Model\Carrier\Provider\Fancourier</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!--
+        Sameday: verified against sameday-courier/magento2-plugin. Lockers and
+        home delivery share the one `samedaycourier` carrier code on Magento 2
+        (unlike Magento 1's separate bgsamedayeasybox), and the password is
+        stored encrypted.
+    -->
+    <type name="Tinylist\Dropshipping\Model\Carrier\Provider\Sameday">
+        <arguments>
+            <argument name="label" xsi:type="string">Sameday Courier</argument>
+            <argument name="carrierCodes" xsi:type="array">
+                <item name="default" xsi:type="string">samedaycourier</item>
+            </argument>
+            <argument name="moduleName" xsi:type="string">SamedayCourier_Shipping</argument>
+            <argument name="usernamePath" xsi:type="string">carriers/samedaycourier/username</argument>
+            <argument name="passwordPath" xsi:type="string">carriers/samedaycourier/password</argument>
+            <argument name="testModePath" xsi:type="string">carriers/samedaycourier/testing</argument>
+            <argument name="hostCountry" xsi:type="string">RO</argument>
+            <argument name="hosts" xsi:type="array">
+                <item name="RO" xsi:type="array">
+                    <item name="0" xsi:type="string">https://api.sameday.ro</item>
+                    <item name="1" xsi:type="string">https://sameday-api.demo.zitec.com</item>
+                </item>
+                <item name="HU" xsi:type="array">
+                    <item name="0" xsi:type="string">https://api.sameday.hu</item>
+                    <item name="1" xsi:type="string">https://sameday-api-hu.demo.zitec.com</item>
+                </item>
+                <item name="BG" xsi:type="array">
+                    <item name="0" xsi:type="string">https://api.sameday.bg</item>
+                    <item name="1" xsi:type="string">https://sameday-api-bg.demo.zitec.com</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!--
+        DPD Romania: verified against DPDromania/magento2-shipping. Credentials
+        and the shipment id live in that module's own tables, not store config.
+    -->
+    <type name="Tinylist\Dropshipping\Model\Carrier\Provider\Dpd">
+        <arguments>
+            <argument name="label" xsi:type="string">DPD Romania</argument>
+            <argument name="carrierCodes" xsi:type="array">
+                <item name="default" xsi:type="string">dpdro_shipping</item>
+            </argument>
+            <argument name="moduleName" xsi:type="string">DpdRo_Shipping</argument>
+            <argument name="apiUrl" xsi:type="string">https://api.dpd.ro/v1/</argument>
+        </arguments>
+    </type>
+
+    <!--
+        FAN Courier: UNVERIFIED. FAN ships its Magento 2 module as a download
+        rather than a public repository, so the module name and config paths
+        below are best-effort and must be checked against a store that actually
+        runs it. See README.md → "FAN Courier needs verification".
+    -->
+    <type name="Tinylist\Dropshipping\Model\Carrier\Provider\Fancourier">
+        <arguments>
+            <argument name="label" xsi:type="string">FAN Courier</argument>
+            <argument name="carrierCodes" xsi:type="array">
+                <item name="default" xsi:type="string">fancourier</item>
+            </argument>
+            <argument name="moduleName" xsi:type="string">FANCourier_Customshipping</argument>
+            <argument name="apiUrl" xsi:type="string">https://api.fancourier.ro</argument>
+            <argument name="clientIdPath" xsi:type="string">carriers/fancourier/client_id</argument>
+            <argument name="usernamePath" xsi:type="string">carriers/fancourier/username</argument>
+            <argument name="passwordPath" xsi:type="string">carriers/fancourier/password</argument>
+        </arguments>
+    </type>
+
+    <!--
+        Payment method, assembled from Magento\Payment\Model\Method\Adapter.
+        payment/tinylist_dropshipping/model in etc/config.xml points at
+        TinylistDropshippingFacade below.
+    -->
+    <virtualType name="TinylistDropshippingFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Tinylist\Dropshipping\Model\Payment\Dropshipping::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">TinylistDropshippingValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">TinylistDropshippingCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="TinylistDropshippingConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Tinylist\Dropshipping\Model\Payment\Dropshipping::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="TinylistDropshippingConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">TinylistDropshippingConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="TinylistDropshippingValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">TinylistDropshippingConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="TinylistDropshippingCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">Tinylist\Dropshipping\Model\Payment\Command\Initialize</item>
+            </argument>
+        </arguments>
+    </virtualType>
+</config>
