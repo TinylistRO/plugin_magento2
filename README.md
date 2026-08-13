@@ -413,7 +413,6 @@ Model/
 - The invoice endpoint returns the PDF inline as base64. The Tinylist client also
   accepts a `pdf_url` instead; that would suit very large multi-invoice
   documents, but would need a signed-URL controller and is not implemented.
-- The tracking endpoint is not yet wired on the Tinylist side —
-  `MagentoTwoAdapter::fetchTracking()` still returns `[]`. The response field
-  names match the Magento 1 envelope, so `MagentoOneAdapter`'s parsing carries
-  over.
+- Both endpoints are consumed by the Tinylist platform's Magento 2 adapter. The
+  response field names match the Magento 1 envelope so the two share one mapping
+  — keep them in step when changing either.
